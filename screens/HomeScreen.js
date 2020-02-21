@@ -10,7 +10,7 @@ import {
 
 const { width, height } = Dimensions.get("window");
 
-function HomeScreen(props) {
+const HomeScreen = (props) => {
     return (
         <View>
             <TouchableWithoutFeedback onPress={props.goMenu}>

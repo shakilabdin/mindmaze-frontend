@@ -9,7 +9,7 @@ import {
 
 const { width, height } = Dimensions.get("window");
 
-function SplashScreen(props) {
+const SplashScreen = (props) => {
     return (
         <View>
             <TouchableWithoutFeedback onPress={props.goHome}>

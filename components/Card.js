@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-function Card(props) {
+const Card = (props) => {
     return (
         <View style={styles.card}>
             

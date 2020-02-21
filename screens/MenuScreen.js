@@ -1,33 +1,26 @@
-import React, {useState, useEffect} from "react";
-import { View, Text, StyleSheet } from "react-native";
-import Card from '../components/Card'
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, Image, Picker } from "react-native";
+import Card from "../components/Card";
 
-API = "http://localhost:3000/categories";
-
-function MenuScreen() {
-    const [categories, setCategories] = useState([]);
-
-    useEffect(() => {
-        fetch(API)
-            .then(resp => resp.json())
-            .then(result => console.log(result));
-    });
-
+const MenuScreen = () => {
+    
     return (
-        <View style={styles.card}>
-            <Text style={{color: 'red'}}>Hello</Text>
+        <View style={styles.imageContainer}>
+            <Picker
+                style={{ height: 50, width: 100 }}
+            >
+                <Picker.Item label="Java" value="java" />
+                <Picker.Item label="JavaScript" value="js" />
+            </Picker>
         </View>
     );
-}
+};
 
 styles = StyleSheet.create({
-    card: {
-        height: '60%',
-        width: '60%',
-        backgroundColor: 'white',
-        borderRadius: 10,
+    imageContainer: {
+        flex: 1,
         justifyContent: "center",
-        alignItems: 'center'
+        alignItems: "center"
     }
 });
 
