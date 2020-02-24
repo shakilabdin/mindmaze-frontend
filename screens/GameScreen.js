@@ -11,7 +11,7 @@ const GameScreen = props => {
     const [allQuestions, setAllQuestions] = useState([]);
     const [currentQuestion, setCurrentQuestion] = useState("");
     const [timer, setTimer] = useState(0);
-    const [points, setPoints] = useState(0)
+    const [points, setPoints] = useState(0);
     const [askedQuestions, setAskedQuestions] = useState([]);
 
     const API = `http://localhost:3000/categories/1`;
@@ -35,36 +35,45 @@ const GameScreen = props => {
     // function to lower timer every 1 sec
     function lowerScore() {
         if (timer > 0) {
-            setTimer(timer - 1)
+            setTimer(timer - 1);
         } else {
-            chooseQuestion()
+            chooseQuestion();
         }
     }
 
     useEffect(() => {
-        let insideTimer = setInterval(lowerScore, 1000)
+        let insideTimer = setInterval(lowerScore, 1000);
 
         return function anything() {
-            clearInterval(insideTimer)
-        }
+            clearInterval(insideTimer);
+        };
+    });
 
-    })
-
-    // function used to set current question to random question, add remaining time to points, and set timer based on difficulty
+    // function used to set current question to random question and set timer based on difficulty
     function chooseQuestion() {
-        let question = allQuestions[Math.floor(Math.random() * allQuestions.length)];
-        console.log(question)
-        setPoints(points + timer)
+        let question =
+            allQuestions[Math.floor(Math.random() * allQuestions.length)];
+        console.log(question);
         setCurrentQuestion(question);
         question && timerHandler(question.difficulty);
     }
 
     // on incorrect choice lose 15 points
-    function incorrect() {
-        setTimer(timer - 15)
+    function incorrectHandler() {
+        if (timer > 15) {
+            setTimer(timer - 15);
+        } else {
+            setTimer(0);
+        }
     }
 
+    // on correct choice setPoints and retrieve a new question
+    function correctHandler() {
+        setPoints(points + timer);
+        chooseQuestion();
+    }
 
+    // function to set time based on difficulty
     function timerHandler(difficulty) {
         switch (difficulty) {
             case "easy":
@@ -90,16 +99,28 @@ const GameScreen = props => {
             <View style={styles.answerContainers}>
                 <Text>{currentQuestion && currentQuestion.question}</Text>
                 {currentQuestion ? (
-                    <Button title={currentQuestion.correct_choice} onPress={chooseQuestion} />
+                    <Button
+                        title={currentQuestion.correct_choice}
+                        onPress={correctHandler}
+                    />
                 ) : null}
                 {currentQuestion ? (
-                    <Button title={currentQuestion.first_incorrect} onPress={incorrect}/>
+                    <Button
+                        title={currentQuestion.first_incorrect}
+                        onPress={incorrectHandler}
+                    />
                 ) : null}
                 {currentQuestion ? (
-                    <Button title={currentQuestion.second_incorrect} onPress={incorrect}/>
+                    <Button
+                        title={currentQuestion.second_incorrect}
+                        onPress={incorrectHandler}
+                    />
                 ) : null}
                 {currentQuestion ? (
-                    <Button title={currentQuestion.third_incorrect} onPress={incorrect}/>
+                    <Button
+                        title={currentQuestion.third_incorrect}
+                        onPress={incorrectHandler}
+                    />
                 ) : null}
             </View>
         </View>

@@ -3,20 +3,17 @@ import {
     View,
     StyleSheet,
     Image,
-    Dimensions,
     TouchableWithoutFeedback
 } from "react-native";
 
-const { width, height } = Dimensions.get("window");
-
 const SplashScreen = (props) => {
     return (
-        <View>
+        <View style={styles.containers}>
             <TouchableWithoutFeedback onPress={props.goHome}>
                 <Image
                     source={require("../assets/mindmaze_1.jpg")}
-                    resizeMode={"contain"}
-                    style={styles.splash}
+                    resizeMode='stretch'
+                    style={styles.image}
                 />
             </TouchableWithoutFeedback>
         </View>
@@ -24,10 +21,14 @@ const SplashScreen = (props) => {
 }
 
 styles = StyleSheet.create({
-    splash: {
-        width: 800,
-        height: height
-    }
+    container: {
+        width: 896,
+        height: 414
+      },
+      image: {
+        width: 896,
+        height: 414
+      }
 });
 
 export default SplashScreen;
