@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableWithoutFeedback, Button } from "react-native";
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableWithoutFeedback,
+    Button
+} from "react-native";
 
 const GameScreen = props => {
     const [allQuestions, setAllQuestions] = useState([]);
@@ -22,29 +28,56 @@ const GameScreen = props => {
 
     useEffect(() => {
         chooseQuestion();
-    }, [allQuestions])
-    
+    }, [allQuestions]);
 
     function chooseQuestion() {
-        let question =
-            allQuestions[Math.floor(Math.random() * allQuestions.length)];
+        let question = allQuestions[Math.floor(Math.random() * allQuestions.length)];
+        console.log(question)
         setCurrentQuestion(question);
+        question && timerHandler(question.difficulty);
     }
-    
+
+    function lowerScore() {
+        setTimer(prevState => prevState - 1)
+    }
+
+    // let pointsInterval = setInterval(lowerScore, 1000)
+
+    function timerHandler(difficulty) {
+        switch (difficulty) {
+            case "easy":
+                setTimer(30);
+                break;
+            case "medium":
+                setTimer(45);
+                break;
+            case "hard":
+                setTimer(60);
+                break;
+            default:
+                break;
+        }
+    }
 
     return (
         <View style={styles.container}>
-            <View style={styles.answerContainers}>
-                <Text>
-                    {currentQuestion && currentQuestion.question}
-                </Text>
-                {currentQuestion ? <Button title={currentQuestion.correct_choice}/> : null}
-                {currentQuestion ? <Button title={currentQuestion.first_incorrect}/> : null}
-                {currentQuestion ? <Button title={currentQuestion.second_incorrect}/> : null}
-                {currentQuestion ? <Button title={currentQuestion.third_incorrect}/> : null}
-            </View>
             <View>
-                <Text>{timer}</Text>
+                <Text>Timer: {timer}</Text>
+            </View>
+            <View style={styles.answerContainers}>
+                <Text>{currentQuestion && currentQuestion.question}</Text>
+                {currentQuestion ? (
+                    <Button title={currentQuestion.correct_choice} onPress={chooseQuestion} />
+                ) : null}
+                {currentQuestion ? (
+                    <Button title={currentQuestion.first_incorrect} onPress={chooseQuestion}/>
+                ) : null}
+                {currentQuestion ? (
+                    <Button title={currentQuestion.second_incorrect} onPress={chooseQuestion}/>
+                ) : null}
+                {currentQuestion ? (
+                    <Button title={currentQuestion.third_incorrect} onPress={chooseQuestion}/>
+                ) : null}
             </View>
         </View>
     );
@@ -53,12 +86,12 @@ const GameScreen = props => {
 styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center'
+        justifyContent: "center",
+        alignItems: "center"
     },
     answerContainers: {
-        justifyContent: 'center',
-        width: '40%'
+        justifyContent: "center",
+        width: "40%"
     }
 });
 
