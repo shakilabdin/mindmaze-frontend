@@ -11,9 +11,10 @@ const GameScreen = props => {
     const [allQuestions, setAllQuestions] = useState([]);
     const [currentQuestion, setCurrentQuestion] = useState("");
     const [timer, setTimer] = useState(0);
+    const [points, setPoints] = useState(0)
     const [askedQuestions, setAskedQuestions] = useState([]);
 
-    const API = `http://localhost:3000/categories/3`;
+    const API = `http://localhost:3000/categories/1`;
 
     // fetch all questions in chosen category
     const fetchQuestions = async () => {
@@ -26,22 +27,43 @@ const GameScreen = props => {
         fetchQuestions();
     }, []);
 
+    // after fetching questions choose a random question
     useEffect(() => {
         chooseQuestion();
     }, [allQuestions]);
 
+    // function to lower timer every 1 sec
+    function lowerScore() {
+        if (timer > 0) {
+            setTimer(timer - 1)
+        } else {
+            chooseQuestion()
+        }
+    }
+
+    useEffect(() => {
+        let insideTimer = setInterval(lowerScore, 1000)
+
+        return function anything() {
+            clearInterval(insideTimer)
+        }
+
+    })
+
+    // function used to set current question to random question, add remaining time to points, and set timer based on difficulty
     function chooseQuestion() {
         let question = allQuestions[Math.floor(Math.random() * allQuestions.length)];
         console.log(question)
+        setPoints(points + timer)
         setCurrentQuestion(question);
         question && timerHandler(question.difficulty);
     }
 
-    function lowerScore() {
-        setTimer(prevState => prevState - 1)
+    // on incorrect choice lose 15 points
+    function incorrect() {
+        setTimer(timer - 15)
     }
 
-    // let pointsInterval = setInterval(lowerScore, 1000)
 
     function timerHandler(difficulty) {
         switch (difficulty) {
@@ -62,7 +84,8 @@ const GameScreen = props => {
     return (
         <View style={styles.container}>
             <View>
-                <Text>Timer: {timer}</Text>
+                <Text>Points: {points}</Text>
+                <Text>Timer: {timer} </Text>
             </View>
             <View style={styles.answerContainers}>
                 <Text>{currentQuestion && currentQuestion.question}</Text>
@@ -70,13 +93,13 @@ const GameScreen = props => {
                     <Button title={currentQuestion.correct_choice} onPress={chooseQuestion} />
                 ) : null}
                 {currentQuestion ? (
-                    <Button title={currentQuestion.first_incorrect} onPress={chooseQuestion}/>
+                    <Button title={currentQuestion.first_incorrect} onPress={incorrect}/>
                 ) : null}
                 {currentQuestion ? (
-                    <Button title={currentQuestion.second_incorrect} onPress={chooseQuestion}/>
+                    <Button title={currentQuestion.second_incorrect} onPress={incorrect}/>
                 ) : null}
                 {currentQuestion ? (
-                    <Button title={currentQuestion.third_incorrect} onPress={chooseQuestion}/>
+                    <Button title={currentQuestion.third_incorrect} onPress={incorrect}/>
                 ) : null}
             </View>
         </View>
