@@ -2,23 +2,24 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View, Dimensions, Image } from "react-native";
 import { ScreenOrientation } from "expo";
-import Border from "./screens/Border";
+import { Provider as PaperProvider } from "react-native-paper";
 import SplashScreen from "./screens/SplashScreen";
 import HomeScreen from "./screens/HomeScreen";
 import MenuScreen from "./screens/MenuScreen";
 import GameScreen from "./screens/GameScreen";
 
-API = "http://localhost:3000/categories";
+API = "http://localhost:3000/";
 
 export default function App() {
     const [gameState, setGameState] = useState("splash");
     const [categories, setCategories] = useState(null);
+    const [user, setUser] = useState("");
     const [chosenCategory, setChosenCategory] = useState(0);
 
     // fetch categories and empty array to stop refetches
     useEffect(() => {
         async function fetchData() {
-            const res = await fetch(API);
+            const res = await fetch(`${API}/categories`);
             res.json().then(result => setCategories(result));
         }
 
@@ -42,10 +43,12 @@ export default function App() {
         setGameState("menu");
     }
 
+    // change screen to game screen
     function goGame() {
         setGameState("game");
     }
 
+    // set category id
     function chooseCategory(id) {
         setChosenCategory(id);
     }
@@ -67,18 +70,41 @@ export default function App() {
                 );
             case "game":
                 return <GameScreen chosenCategory={chooseCategory} />;
+            case "endgame":
+                return null;
             default:
                 return <HomeScreen />;
         }
     }
 
+    // function to post game *********WIP***********
+    function postGame(score) {
+        let bodyObj = {
+            user_id: user.id,
+            category_id: chosenCategory,
+            score: score
+        };
+
+        let postObj = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                accepts: "application/json"
+            },
+            body: JSON.stringify(bodyObj)
+        };
+        fetch(`${API}/games`, postObj);
+    }
+
     return (
-        <View style={styles.root}>
-            {/* <SplashScreen /> */}
-            <HomeScreen />
-            {/* <MenuScreen /> */}
-            {/* <GameScreen categories={categories} /> */}
-        </View>
+        <PaperProvider>
+            <View style={styles.root}>
+                {/* <SplashScreen /> */}
+                {/* <HomeScreen /> */}
+                {/* <MenuScreen /> */}
+                <GameScreen categories={categories} />
+            </View>
+        </PaperProvider>
     );
 }
 

@@ -12,7 +12,8 @@ const GameScreen = props => {
     const [currentQuestion, setCurrentQuestion] = useState("");
     const [timer, setTimer] = useState(0);
     const [points, setPoints] = useState(0);
-    const [askedQuestions, setAskedQuestions] = useState([]);
+    const [askedQuestions, setAskedQuestions] = useState(0);
+    const [choices, setChoices] = useState([]);
 
     const API = `http://localhost:3000/categories/1`;
 
@@ -51,11 +52,25 @@ const GameScreen = props => {
 
     // function used to set current question to random question and set timer based on difficulty
     function chooseQuestion() {
-        let question =
-            allQuestions[Math.floor(Math.random() * allQuestions.length)];
-        console.log(question);
-        setCurrentQuestion(question);
-        question && timerHandler(question.difficulty);
+        if (askedQuestions <= 10) {
+            let question =
+                allQuestions[Math.floor(Math.random() * allQuestions.length)];
+            setCurrentQuestion(question);
+            setAskedQuestions(askedQuestions + 1);
+            if (question) {
+                let c = [
+                    question.correct_choice,
+                    question.first_incorrect,
+                    question.second_incorrect,
+                    question.third_incorrect
+                ]
+                shuffle(c)
+                setChoices(c);
+                timerHandler(question.difficulty);
+            }  
+        } else {
+            console.log("game over");
+        }
     }
 
     // on incorrect choice lose 15 points
@@ -71,6 +86,14 @@ const GameScreen = props => {
     function correctHandler() {
         setPoints(points + timer);
         chooseQuestion();
+    }
+
+    function answerHandler(answer) {
+        if (currentQuestion.correct_choice === answer) {
+            correctHandler()
+        } else {
+            incorrectHandler()
+        }
     }
 
     // function to set time based on difficulty
@@ -90,6 +113,12 @@ const GameScreen = props => {
         }
     }
 
+    function shuffle(array) {
+        array.sort(() => Math.random() - 0.5);
+    }
+
+    console.log(choices)
+
     return (
         <View style={styles.container}>
             <View>
@@ -100,26 +129,26 @@ const GameScreen = props => {
                 <Text>{currentQuestion && currentQuestion.question}</Text>
                 {currentQuestion ? (
                     <Button
-                        title={currentQuestion.correct_choice}
-                        onPress={correctHandler}
+                        title={choices[0]}
+                        onPress={() => answerHandler(choices[0])}
                     />
                 ) : null}
                 {currentQuestion ? (
                     <Button
-                        title={currentQuestion.first_incorrect}
-                        onPress={incorrectHandler}
+                        title={choices[1]}
+                        onPress={() => answerHandler(choices[1])}
                     />
                 ) : null}
                 {currentQuestion ? (
                     <Button
-                        title={currentQuestion.second_incorrect}
-                        onPress={incorrectHandler}
+                        title={choices[2]}
+                        onPress={() => answerHandler(choices[2])}
                     />
                 ) : null}
                 {currentQuestion ? (
                     <Button
-                        title={currentQuestion.third_incorrect}
-                        onPress={incorrectHandler}
+                        title={choices[3]}
+                        onPress={() => answerHandler(choices[3])}
                     />
                 ) : null}
             </View>
