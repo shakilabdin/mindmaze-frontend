@@ -48,11 +48,6 @@ export default function App() {
         setGameState("game");
     }
 
-    // set category id
-    function chooseCategory(id) {
-        setChosenCategory(id);
-    }
-
     // switch statement of which screen to render
     function screenChoice() {
         switch (gameState) {
@@ -65,7 +60,7 @@ export default function App() {
                     <MenuScreen
                         categories={categories}
                         goGame={goGame}
-                        chooseCategory={chooseCategory}
+                        setChosenCategory={setChosenCategory}
                     />
                 );
             case "game":
@@ -96,13 +91,16 @@ export default function App() {
         fetch(`${API}/games`, postObj);
     }
 
+
+    console.log(chosenCategory)
+    
     return (
         <PaperProvider>
             <View style={styles.root}>
                 {/* <SplashScreen /> */}
                 {/* <HomeScreen /> */}
-                {/* <MenuScreen /> */}
-                <GameScreen categories={categories} />
+                <MenuScreen categories={categories} setChosenCategory={setChosenCategory}/>
+                {/* <GameScreen categories={categories} /> */}
             </View>
         </PaperProvider>
     );

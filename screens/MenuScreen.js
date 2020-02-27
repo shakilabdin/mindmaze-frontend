@@ -1,26 +1,67 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Image, Picker } from "react-native";
-import Card from "../components/Card";
+import React, { useState } from "react";
+import { StyleSheet, View, Image, ImageBackground, Text, Button } from "react-native";
+import { Dropdown } from "react-native-material-dropdown";
 
-const MenuScreen = () => {
-    
+const MenuScreen = props => {
+    let data = [
+        { value: "General Knowledge" },
+        { value: "Books" },
+        { value: "Movies" },
+        { value: "Video Games" },
+        { value: "History" }
+    ];
+
+    function changeHandler(e) {
+        let newCat = e
+        props.categories.forEach(category => {
+            if(category.name === newCat) {
+                props.setChosenCategory(category.id)
+            }
+        })
+    }
+
+    console.log(props.categories)
+
     return (
-        <View style={styles.imageContainer}>
-            <Picker
-                style={{ height: 50, width: 100 }}
+        <View style={styles.container}>
+            <ImageBackground
+                source={require("../assets/border.png")}
+                resizeMode="stretch"
+                style={styles.image}
+                imageStyle={styles.image_imageStyle}
             >
-                <Picker.Item label="Java" value="java" />
-                <Picker.Item label="JavaScript" value="js" />
-            </Picker>
+                <Text style={styles.gameOptions}>Game Options</Text>
+                <View style={styles.rect}>
+                    <Dropdown label="Select Category" data={data} onChangeText={changeHandler}/>
+                    <Button title='Start Game'/>
+                    <Button color='red' title='Cancel'/>
+                </View>
+            </ImageBackground>
         </View>
     );
 };
 
-styles = StyleSheet.create({
-    imageContainer: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center"
+const styles = StyleSheet.create({
+    container: {
+        flex: 1
+    },
+    image: {
+        width: 896,
+        height: 414,
+        backgroundColor: "#f5f5dc",
+        alignSelf: "center"
+    },
+    image_imageStyle: {},
+    gameOptions: {
+        fontSize: 30,
+        marginTop: 49,
+        marginLeft: 340
+    },
+    rect: {
+        width: 513,
+        height: 210,
+        marginTop: 23,
+        marginLeft: 179
     }
 });
 
