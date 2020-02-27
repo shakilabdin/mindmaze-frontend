@@ -7,16 +7,17 @@ import SplashScreen from "./screens/SplashScreen";
 import HomeScreen from "./screens/HomeScreen";
 import MenuScreen from "./screens/MenuScreen";
 import GameScreen from "./screens/GameScreen";
+import EndGameScreen from "./screens/EndGameScreen"
 
 API = "http://localhost:3000/";
 
 export default function App() {
     const [gameState, setGameState] = useState("splash");
     const [categories, setCategories] = useState(null);
-    const [user, setUser] = useState("");
+    const [user, setUser] = useState(0);
     const [chosenCategory, setChosenCategory] = useState(0);
 
-    // fetch categories and empty array to stop refetches
+    // fetch categories and empty array to stop re-fetches
     useEffect(() => {
         async function fetchData() {
             const res = await fetch(`${API}/categories`);
@@ -48,13 +49,17 @@ export default function App() {
         setGameState("game");
     }
 
+    function goEndGame() {
+        setGameState("endgame")
+    }
+
     // switch statement of which screen to render
     function screenChoice() {
         switch (gameState) {
             case "splash":
                 return <SplashScreen goHome={goHome} />;
             case "home":
-                return <HomeScreen goMenu={goMenu} />;
+                return <HomeScreen goMenu={goMenu} user={user} setUser={setUser}/>;
             case "menu":
                 return (
                     <MenuScreen
@@ -64,9 +69,9 @@ export default function App() {
                     />
                 );
             case "game":
-                return <GameScreen chosenCategory={chooseCategory} />;
+                return <GameScreen chosenCategory={chosenCategory} goHome={goHome} goEndGame={goEndGame}/>;
             case "endgame":
-                return null;
+                return <EndGameScreen />;
             default:
                 return <HomeScreen />;
         }
@@ -92,15 +97,17 @@ export default function App() {
     }
 
 
-    console.log(chosenCategory)
-    
+    // console.log(chosenCategory)
+    console.log(user)
+
     return (
         <PaperProvider>
             <View style={styles.root}>
                 {/* <SplashScreen /> */}
-                {/* <HomeScreen /> */}
-                <MenuScreen categories={categories} setChosenCategory={setChosenCategory}/>
+                {/* <HomeScreen user={user} setUser={setUser} /> */}
+                {/* <MenuScreen categories={categories} setChosenCategory={setChosenCategory}/> */}
                 {/* <GameScreen categories={categories} /> */}
+                {screenChoice()}
             </View>
         </PaperProvider>
     );

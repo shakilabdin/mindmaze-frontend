@@ -6,29 +6,28 @@ import {
     TouchableWithoutFeedback
 } from "react-native";
 
-const SplashScreen = (props) => {
+const SplashScreen = props => {
     return (
-        <View style={styles.containers}>
+        <View style={styles.container}>
             <TouchableWithoutFeedback onPress={props.goHome}>
                 <Image
                     source={require("../assets/mindmaze_1.jpg")}
-                    resizeMode='stretch'
+                    resizeMode="stretch"
                     style={styles.image}
                 />
             </TouchableWithoutFeedback>
         </View>
     );
-}
+};
 
 styles = StyleSheet.create({
     container: {
+        flex: 1
+    },
+    image: {
         width: 896,
         height: 414
-      },
-      image: {
-        width: 896,
-        height: 414
-      }
+    }
 });
 
 export default SplashScreen;

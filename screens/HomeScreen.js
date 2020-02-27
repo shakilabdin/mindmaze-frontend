@@ -4,30 +4,41 @@ import {
     StyleSheet,
     ImageBackground,
     TouchableWithoutFeedback,
-    Text
+    Alert
 } from "react-native";
 import BlueButton from "../components/BlueButton";
 import RedButton from "../components/RedButton";
 import UserModal from "../components/UserModal";
-import UserBox from "../components/UsersBox";
 import UsersBox from "../components/UsersBox";
 
 API = "http://localhost:3000/";
 
 const HomeScreen = props => {
     const [modalState, setModalState] = useState(false);
-    const [users, setUsers] = useState([]);
+    const [allUsers, setAllUsers] = useState([]);
 
     // on mount fetch all users and set user hook
     useEffect(() => {
         fetch(`${API}/users`)
             .then(resp => resp.json())
-            .then(result => setUsers(result));
+            .then(result => setAllUsers(result));
     }, []);
 
     // after selecting player and then pressing door game start
     function doorPressHandler() {
-        console.log("pressing door");
+        if (props.user !== 0) {
+            console.log("pressing door after choosing");
+            props.goMenu()
+        } else {
+            Alert.alert(
+                "Please Choose a Player",
+                null,
+                [
+                    { text: "OK", onPress: () => console.log("OK Pressed") }
+                ],
+                { cancelable: false }
+            );
+        }
     }
 
     // function renders add user modal as button is pressed
@@ -45,7 +56,6 @@ const HomeScreen = props => {
 
     // on add player button press change modal state to true and render modal
     function addPlayerButton() {
-        console.log("pressing");
         setModalState(true);
     }
 
@@ -58,10 +68,11 @@ const HomeScreen = props => {
                 "Content-Type": "application/json",
                 accepts: "application/json"
             },
-            body: JSON.stringify({name: player})
+            body: JSON.stringify({ name: player })
         };
-        fetch(`${API}/users`, postObj).then(resp => resp.json())
-        .then(result => setUsers([...users, result]))
+        fetch(`${API}/users`, postObj)
+            .then(resp => resp.json())
+            .then(result => setUsers([...users, result]));
         setModalState(false);
     }
 
@@ -93,7 +104,10 @@ const HomeScreen = props => {
                             ></RedButton>
                         </View>
                         <View style={styles.playerContainer}>
-                            <UsersBox users={users} />
+                            <UsersBox
+                                allUsers={allUsers}
+                                setUser={props.setUser}
+                            />
                         </View>
                     </View>
                     {showModal()}
@@ -117,7 +131,7 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(230, 230, 230,1)",
         marginTop: 230,
         marginLeft: 658,
-        overflow: 'hidden'
+        overflow: "hidden"
     },
     buttonContainer: {
         height: 29,
@@ -143,7 +157,7 @@ const styles = StyleSheet.create({
         width: 258,
         height: 134,
         marginTop: -279,
-        alignSelf: "center",
+        alignSelf: "center"
     }
 });
 

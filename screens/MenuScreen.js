@@ -1,26 +1,27 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, View, Image, ImageBackground, Text, Button } from "react-native";
 import { Dropdown } from "react-native-material-dropdown";
 
 const MenuScreen = props => {
-    let data = [
-        { value: "General Knowledge" },
-        { value: "Books" },
-        { value: "Movies" },
-        { value: "Video Games" },
-        { value: "History" }
-    ];
+    let data = [];
+    // console.log(props.categories)
+
+    useEffect(() => {
+        if (props.categories) {
+            props.categories.forEach(category => {
+                data.push({ value: category.name });
+            });
+        }
+    }, props.categories);
 
     function changeHandler(e) {
-        let newCat = e
         props.categories.forEach(category => {
-            if(category.name === newCat) {
+            if(category.name === e){
+                // console.log('hitting', category.id)
                 props.setChosenCategory(category.id)
             }
         })
     }
-
-    console.log(props.categories)
 
     return (
         <View style={styles.container}>
@@ -33,7 +34,7 @@ const MenuScreen = props => {
                 <Text style={styles.gameOptions}>Game Options</Text>
                 <View style={styles.rect}>
                     <Dropdown label="Select Category" data={data} onChangeText={changeHandler}/>
-                    <Button title='Start Game'/>
+                    <Button title='Start Game' onPress={props.goGame}/>
                     <Button color='red' title='Cancel'/>
                 </View>
             </ImageBackground>

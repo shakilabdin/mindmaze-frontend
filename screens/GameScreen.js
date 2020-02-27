@@ -15,7 +15,7 @@ const GameScreen = props => {
     const [askedQuestions, setAskedQuestions] = useState(0);
     const [choices, setChoices] = useState([]);
 
-    const API = `http://localhost:3000/categories/1`;
+    let API = `http://localhost:3000/categories/${props.chosenCategory}`;
 
     // fetch all questions in chosen category
     const fetchQuestions = async () => {
@@ -116,8 +116,6 @@ const GameScreen = props => {
     function shuffle(array) {
         array.sort(() => Math.random() - 0.5);
     }
-
-    console.log(choices)
 
     return (
         <View style={styles.container}>

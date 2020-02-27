@@ -4,16 +4,15 @@ import { RadioButton } from "react-native-paper";
 
 const UsersBox = props => {
     const [checked, setChecked] = useState("first");
-    console.log(props.users);
 
     function renderUsers() {
         let options;
-        if (props.users) {
-            options = props.users.map(user => {
+        if (props.allUsers) {
+            options = props.allUsers.map(user => {
                 return (
                     <View style={styles.buttonContainer}>
                         <RadioButton value={user.name} />
-                        <Text onPress={() => setChecked(user.name)}>
+                        <Text onPress={() => pressHandler(user)}>
                             {user.name}
                         </Text>
                     </View>
@@ -21,6 +20,11 @@ const UsersBox = props => {
             });
         }
         return options;
+    }
+
+    function pressHandler(user) {
+        setChecked(user.name);
+        props.setUser(user.id);
     }
 
     return (
