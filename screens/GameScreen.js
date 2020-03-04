@@ -1,20 +1,16 @@
 import React, { useState, useEffect } from "react";
-import {
-    View,
-    Text,
-    StyleSheet,
-    TouchableWithoutFeedback,
-    Button
-} from "react-native";
+import { View, Text, StyleSheet, ImageBackground, Button } from "react-native";
 
 const GameScreen = props => {
     const [allQuestions, setAllQuestions] = useState([]);
     const [currentQuestion, setCurrentQuestion] = useState("");
     const [timer, setTimer] = useState(0);
     const [points, setPoints] = useState(0);
-    const [askedQuestions, setAskedQuestions] = useState([]);
+    const [askedQuestions, setAskedQuestions] = useState(-1);
+    const [choices, setChoices] = useState([]);
+    const [chances, setChances] = useState(0)
 
-    const API = `http://localhost:3000/categories/1`;
+    let API = `http://localhost:3000/categories/${props.chosenCategory}`;
 
     // fetch all questions in chosen category
     const fetchQuestions = async () => {
@@ -51,17 +47,33 @@ const GameScreen = props => {
 
     // function used to set current question to random question and set timer based on difficulty
     function chooseQuestion() {
-        let question =
-            allQuestions[Math.floor(Math.random() * allQuestions.length)];
-        console.log(question);
-        setCurrentQuestion(question);
-        question && timerHandler(question.difficulty);
+        if (askedQuestions < 10) {
+            let question =
+                allQuestions[Math.floor(Math.random() * allQuestions.length)];
+            setCurrentQuestion(question);
+            setAskedQuestions(askedQuestions + 1);
+            setChances(0)
+            if (question) {
+                let c = [
+                    question.correct_choice,
+                    question.first_incorrect,
+                    question.second_incorrect,
+                    question.third_incorrect
+                ];
+                shuffle(c);
+                setChoices(c);
+                timerHandler(question.difficulty);
+            }
+        } else {
+            props.goEndGame();
+            props.setScoredPoints(points);
+        }
     }
 
     // on incorrect choice lose 15 points
     function incorrectHandler() {
-        if (timer > 15) {
-            setTimer(timer - 15);
+        if (timer > 10) {
+            setTimer(timer - 10);
         } else {
             setTimer(0);
         }
@@ -73,69 +85,136 @@ const GameScreen = props => {
         chooseQuestion();
     }
 
+    function answerHandler(answer, index) {
+        if (currentQuestion.correct_choice === answer) {
+            correctHandler();
+        } else {
+            if (chances < 1) {
+                setChances(chances + 1)
+                incorrectHandler();
+            } else {chooseQuestion()}
+        }
+    }
+
     // function to set time based on difficulty
     function timerHandler(difficulty) {
         switch (difficulty) {
             case "easy":
-                setTimer(30);
+                setTimer(20);
                 break;
             case "medium":
-                setTimer(45);
+                setTimer(30);
                 break;
             case "hard":
-                setTimer(60);
+                setTimer(40);
                 break;
             default:
                 break;
         }
     }
 
+    function shuffle(array) {
+        array.sort(() => Math.random() - 0.5);
+    }
+
     return (
         <View style={styles.container}>
-            <View>
-                <Text>Points: {points}</Text>
-                <Text>Timer: {timer} </Text>
-            </View>
-            <View style={styles.answerContainers}>
-                <Text>{currentQuestion && currentQuestion.question}</Text>
-                {currentQuestion ? (
-                    <Button
-                        title={currentQuestion.correct_choice}
-                        onPress={correctHandler}
-                    />
-                ) : null}
-                {currentQuestion ? (
-                    <Button
-                        title={currentQuestion.first_incorrect}
-                        onPress={incorrectHandler}
-                    />
-                ) : null}
-                {currentQuestion ? (
-                    <Button
-                        title={currentQuestion.second_incorrect}
-                        onPress={incorrectHandler}
-                    />
-                ) : null}
-                {currentQuestion ? (
-                    <Button
-                        title={currentQuestion.third_incorrect}
-                        onPress={incorrectHandler}
-                    />
-                ) : null}
-            </View>
+            <ImageBackground
+                source={require("../assets/question_template.jpg")}
+                resizeMode="stretch"
+                style={styles.image}
+                imageStyle={styles.image_imageStyle}
+            >
+                <View style={styles.question}>
+                    <Text>Question: {askedQuestions}</Text>
+                    <Text>{currentQuestion && currentQuestion.question}</Text>
+                    <Text style={styles.timer}>Timer: {timer} </Text>
+                </View>
+                <View style={styles.choicesContainer}>
+                    {currentQuestion ? (
+                        <View style={styles.button}>
+                            <Button
+                                title={choices[0]}
+                                onPress={() => answerHandler(choices[0], 0)}
+                            />
+                        </View>
+                    ) : null}
+                    {currentQuestion ? (
+                        <View style={styles.button}>
+                            <Button
+                                title={choices[1]}
+                                onPress={() => answerHandler(choices[1], 1)}
+                            />
+                        </View>
+                    ) : null}
+                    {currentQuestion ? (
+                        <View style={styles.button}>
+                            <Button
+                                title={choices[2]}
+                                onPress={() => answerHandler(choices[2], 2)}
+                            />
+                        </View>
+                    ) : null}
+                    {currentQuestion ? (
+                        <View style={styles.button}>
+                            <Button
+                                title={choices[3]}
+                                onPress={() => answerHandler(choices[3], 3)}
+                            />
+                        </View>
+                    ) : null}
+                </View>
+                <View style={styles.profileContainer}>
+                    <Text style={styles.name}>{props.user.name}</Text>
+                    <Text style={styles.points}> {points} </Text>
+                    <Button title="Quit Game" color='red' onPress={props.goHome}/>
+                </View>
+            </ImageBackground>
         </View>
     );
 };
 
 styles = StyleSheet.create({
     container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center"
+        flex: 1
     },
-    answerContainers: {
-        justifyContent: "center",
-        width: "40%"
+    image: {
+        width: 896,
+        height: 414
+    },
+    image_imageStyle: {},
+    question: {
+        width: 244,
+        height: 115,
+        marginTop: 92,
+        marginLeft: 284
+    },
+    timer: {
+        color: 'red',
+        fontSize: 20
+    },
+    choicesContainer: {
+        width: 417,
+        height: 10,
+        marginTop: 77,
+        marginLeft: 188,
+        padding: 0
+    },
+    button: {
+        height: 30,
+        padding: 0
+    },
+    profileContainer: {
+        marginLeft: 680,
+        alignItems: "center",
+        // justifyContent: "center"
+    },
+    name: {
+        fontSize: 20
+    },
+    points: {
+        color: 'blue',
+        fontSize: 40
     }
 });
 

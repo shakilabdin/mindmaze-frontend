@@ -3,7 +3,7 @@ import { StyleSheet, TouchableOpacity, Text } from "react-native";
 
 function BlueButton(props) {
     return (
-        <TouchableOpacity style={[styles.container, props.style]}>
+        <TouchableOpacity style={[styles.container, props.style]} onPress={props.onPress}>
             <Text style={styles.caption}>{props.text}</Text>
         </TouchableOpacity>
     );

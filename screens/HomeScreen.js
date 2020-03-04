@@ -1,16 +1,95 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
     View,
     StyleSheet,
     ImageBackground,
-    TouchableWithoutFeedback
+    TouchableWithoutFeedback,
+    Alert
 } from "react-native";
 import BlueButton from "../components/BlueButton";
 import RedButton from "../components/RedButton";
+import UserModal from "../components/UserModal";
+import UsersBox from "../components/UsersBox";
+
+const API = "http://localhost:3000/";
 
 const HomeScreen = props => {
+    const [modalState, setModalState] = useState(false);
+    const [allUsers, setAllUsers] = useState([]);
+
+    // on mount fetch all users and set user hook
+    useEffect(() => {
+        fetch(`${API}users`)
+            .then(resp => resp.json())
+            .then(result => setAllUsers(result));
+    }, []);
+
+    // after selecting player and then pressing door game start
     function doorPressHandler() {
-        console.log("pressing door");
+        if (props.user.id !== 0) {
+            console.log("pressing door after choosing");
+            props.goMenu()
+        } else {
+            Alert.alert(
+                "Please Choose a Player",
+                null,
+                [
+                    { text: "OK", onPress: () => console.log("OK Pressed") }
+                ],
+                { cancelable: false }
+            );
+        }
+    }
+
+    // function renders add user modal as button is pressed
+    function showModal() {
+        if (modalState) {
+            return (
+                <UserModal
+                    style={styles.modal}
+                    addPlayerHandler={addPlayerHandler}
+                    cancelHandler={cancelHandler}
+                />
+            );
+        }
+    }
+
+    // on add player button press change modal state to true and render modal
+    function addPlayerButton() {
+        setModalState(true);
+    }
+
+    // start post fetch and then add it on the user list
+    function addPlayerHandler(player) {
+        postObj = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                accepts: "application/json"
+            },
+            body: JSON.stringify({ name: player })
+        };
+        fetch(`${API}/users`, postObj)
+            .then(resp => resp.json())
+            .then(result => setAllUsers([...allUsers, result]));
+        setModalState(false);
+    }
+
+    // close modal / cancel add player
+    function cancelHandler() {
+        setModalState(false);
+    }
+
+    // delete player
+    function deletePlayer() {
+        if (props.user.id !== 0){
+            let newUsers = allUsers.filter(user => user.id !== props.user.user) 
+            console.log('pressing delete', newUsers)
+            fetch(`${API}users/${props.user.user}`, {
+                method: "DELETE"
+            })
+            setAllUsers(newUsers)
+        }
     }
 
     return (
@@ -21,22 +100,29 @@ const HomeScreen = props => {
                     resizeMode="stretch"
                     style={styles.image}
                 >
-                    <View style={styles.rect}></View>
-                    <View style={styles.rect2}>
-                        <View style={styles.materialButtonPrimaryStackRow}>
+                    <View style={styles.menuContainer}>
+                        <View style={styles.buttonContainer}>
                             <View style={styles.materialButtonPrimaryStack}>
                                 <BlueButton
-                                    text={'Add Player'}
+                                    text={"Add Player"}
                                     style={styles.materialButtonPrimary}
+                                    onPress={() => addPlayerButton()}
                                 ></BlueButton>
-                                <View style={styles.rect3}></View>
                             </View>
                             <RedButton
-                                text={'Delete'}
+                                text={"Delete"}
                                 style={styles.materialButtonDanger}
+                                onPress={() => deletePlayer()}
                             ></RedButton>
                         </View>
+                        <View style={styles.playerContainer}>
+                            <UsersBox
+                                allUsers={allUsers}
+                                setUser={props.setUser}
+                            />
+                        </View>
                     </View>
+                    {showModal()}
                 </ImageBackground>
             </TouchableWithoutFeedback>
         </View>
@@ -51,34 +137,23 @@ const styles = StyleSheet.create({
         width: 896,
         height: 414
     },
-    rect: {
-        width: 0,
-        height: 0,
-        backgroundColor: "rgba(230, 230, 230,1)",
-        marginTop: 23,
-        marginLeft: 878
-    },
-    rect2: {
+    menuContainer: {
         width: 202,
         height: 145,
         backgroundColor: "rgba(230, 230, 230,1)",
-        flexDirection: "row",
-        marginTop: 211,
-        marginLeft: 658
+        marginTop: 230,
+        marginLeft: 658,
+        overflow: "hidden"
+    },
+    buttonContainer: {
+        height: 29,
+        flexDirection: "row"
     },
     materialButtonPrimary: {
         top: 0,
         left: 0,
         width: 101,
         height: 28,
-        position: "absolute"
-    },
-    rect3: {
-        top: 14,
-        left: 51,
-        width: 3,
-        height: -3,
-        backgroundColor: "rgba(230, 230, 230,1)",
         position: "absolute"
     },
     materialButtonPrimaryStack: {
@@ -89,10 +164,12 @@ const styles = StyleSheet.create({
         width: 101,
         height: 29
     },
-    materialButtonPrimaryStackRow: {
-        height: 29,
-        flexDirection: "row",
-        flex: 1
+    playerContainer: {},
+    modal: {
+        width: 258,
+        height: 134,
+        marginTop: -279,
+        alignSelf: "center"
     }
 });
 
