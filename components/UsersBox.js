@@ -24,7 +24,7 @@ const UsersBox = props => {
 
     function pressHandler(user) {
         setChecked(user.name);
-        props.setUser(user.id);
+        props.setUser({user: user.id, name: user.name});
     }
 
     return (

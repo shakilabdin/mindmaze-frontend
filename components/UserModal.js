@@ -5,7 +5,6 @@ const UserModal = props => {
     const [input, setInput] = useState("");
 
     function changeHandler(e) {
-        console.log(e);
         setInput(e);
     }
 

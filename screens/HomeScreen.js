@@ -11,7 +11,7 @@ import RedButton from "../components/RedButton";
 import UserModal from "../components/UserModal";
 import UsersBox from "../components/UsersBox";
 
-API = "http://localhost:3000/";
+const API = "http://localhost:3000/";
 
 const HomeScreen = props => {
     const [modalState, setModalState] = useState(false);
@@ -19,14 +19,14 @@ const HomeScreen = props => {
 
     // on mount fetch all users and set user hook
     useEffect(() => {
-        fetch(`${API}/users`)
+        fetch(`${API}users`)
             .then(resp => resp.json())
             .then(result => setAllUsers(result));
     }, []);
 
     // after selecting player and then pressing door game start
     function doorPressHandler() {
-        if (props.user !== 0) {
+        if (props.user.id !== 0) {
             console.log("pressing door after choosing");
             props.goMenu()
         } else {
@@ -61,7 +61,6 @@ const HomeScreen = props => {
 
     // start post fetch and then add it on the user list
     function addPlayerHandler(player) {
-        console.log("player handler", player);
         postObj = {
             method: "POST",
             headers: {
@@ -72,13 +71,25 @@ const HomeScreen = props => {
         };
         fetch(`${API}/users`, postObj)
             .then(resp => resp.json())
-            .then(result => setUsers([...users, result]));
+            .then(result => setAllUsers([...allUsers, result]));
         setModalState(false);
     }
 
     // close modal / cancel add player
     function cancelHandler() {
         setModalState(false);
+    }
+
+    // delete player
+    function deletePlayer() {
+        if (props.user.id !== 0){
+            let newUsers = allUsers.filter(user => user.id !== props.user.user) 
+            console.log('pressing delete', newUsers)
+            fetch(`${API}users/${props.user.user}`, {
+                method: "DELETE"
+            })
+            setAllUsers(newUsers)
+        }
     }
 
     return (
@@ -101,6 +112,7 @@ const HomeScreen = props => {
                             <RedButton
                                 text={"Delete"}
                                 style={styles.materialButtonDanger}
+                                onPress={() => deletePlayer()}
                             ></RedButton>
                         </View>
                         <View style={styles.playerContainer}>

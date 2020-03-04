@@ -1,21 +1,25 @@
 <script src="http://localhost:8097"></script>;
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Dimensions, Image } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { ScreenOrientation } from "expo";
 import { Provider as PaperProvider } from "react-native-paper";
+import { Audio } from "expo-av";
 import SplashScreen from "./screens/SplashScreen";
 import HomeScreen from "./screens/HomeScreen";
 import MenuScreen from "./screens/MenuScreen";
 import GameScreen from "./screens/GameScreen";
-import EndGameScreen from "./screens/EndGameScreen"
+import EndGameScreen from "./screens/EndGameScreen";
+import MazeScreen from "./screens/MazeScreen"
 
-API = "http://localhost:3000/";
+const API = "http://localhost:3000/";
 
 export default function App() {
     const [gameState, setGameState] = useState("splash");
     const [categories, setCategories] = useState(null);
-    const [user, setUser] = useState(0);
-    const [chosenCategory, setChosenCategory] = useState(0);
+    const [user, setUser] = useState({ id: 0, name: "" });
+    const [chosenCategory, setChosenCategory] = useState(1);
+    const [scoredPoints, setScoredPoints] = useState(0);
+    console.disableYellowBox = true;
 
     // fetch categories and empty array to stop re-fetches
     useEffect(() => {
@@ -34,6 +38,21 @@ export default function App() {
         );
     });
 
+    // start bgm
+    useEffect(() => {
+        (async () => {
+            const soundObject = new Audio.Sound();
+            try {
+                await soundObject.loadAsync(require("./assets/bgm.mp3"));
+                await soundObject.setIsLoopingAsync(true);
+                await soundObject.playAsync();
+                // Your sound is playing!
+            } catch (error) {
+                // An error occurred!
+            }
+        })();
+    }, []);
+
     // change screen to home screen
     function goHome() {
         setGameState("home");
@@ -50,7 +69,7 @@ export default function App() {
     }
 
     function goEndGame() {
-        setGameState("endgame")
+        setGameState("endgame");
     }
 
     // switch statement of which screen to render
@@ -59,19 +78,39 @@ export default function App() {
             case "splash":
                 return <SplashScreen goHome={goHome} />;
             case "home":
-                return <HomeScreen goMenu={goMenu} user={user} setUser={setUser}/>;
+                return (
+                    <HomeScreen goMenu={goMenu} user={user} setUser={setUser} />
+                );
             case "menu":
                 return (
                     <MenuScreen
                         categories={categories}
                         goGame={goGame}
+                        goHome={goHome}
                         setChosenCategory={setChosenCategory}
                     />
                 );
             case "game":
-                return <GameScreen chosenCategory={chosenCategory} goHome={goHome} goEndGame={goEndGame}/>;
+                return (
+                    <GameScreen
+                        chosenCategory={chosenCategory}
+                        goHome={goHome}
+                        goEndGame={goEndGame}
+                        setScoredPoints={setScoredPoints}
+                        user={user}
+                    />
+                );
             case "endgame":
-                return <EndGameScreen />;
+                return (
+                    <EndGameScreen
+                        scoredPoints={scoredPoints}
+                        goHome={goHome}
+                        goMenu={goMenu}
+                        setUser={setUser}
+                        chosenCategory={chosenCategory}
+                        user={user}
+                    />
+                );
             default:
                 return <HomeScreen />;
         }
@@ -96,18 +135,11 @@ export default function App() {
         fetch(`${API}/games`, postObj);
     }
 
-
-    // console.log(chosenCategory)
-    console.log(user)
-
     return (
         <PaperProvider>
             <View style={styles.root}>
-                {/* <SplashScreen /> */}
-                {/* <HomeScreen user={user} setUser={setUser} /> */}
-                {/* <MenuScreen categories={categories} setChosenCategory={setChosenCategory}/> */}
-                {/* <GameScreen categories={categories} /> */}
                 {screenChoice()}
+                {/* <MazeScreen /> */}
             </View>
         </PaperProvider>
     );
