@@ -9,7 +9,6 @@ import HomeScreen from "./screens/HomeScreen";
 import MenuScreen from "./screens/MenuScreen";
 import GameScreen from "./screens/GameScreen";
 import EndGameScreen from "./screens/EndGameScreen";
-import MazeScreen from "./screens/MazeScreen"
 
 const API = "http://localhost:3000/";
 
@@ -139,7 +138,6 @@ export default function App() {
         <PaperProvider>
             <View style={styles.root}>
                 {screenChoice()}
-                {/* <MazeScreen /> */}
             </View>
         </PaperProvider>
     );
